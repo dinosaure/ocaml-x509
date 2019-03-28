@@ -759,7 +759,7 @@ module Encoding : sig
 
   (** [public_to_cstruct pk] is [buffer], the ASN.1 encoding of
       the given public key. *)
-  val public_to_cstruct : Cstruct.t -> public_key option
+  val public_to_cstruct : public_key -> Cstruct.t
 
   (** [public_of_cstruct buffer] is [pubkey], the public key of
       the ASN.1 encoded buffer. *)
