@@ -139,16 +139,19 @@ let decode_der cs =
 
 let encode_der { raw ; _ } = raw
 
-let decode_pem_multiple cs =
-  let* data = Pem.parse cs in
-  let certs =
-    List.filter (fun (t, _) -> String.equal "CERTIFICATE" t) data
-  in
-  Pem.foldM (fun (_, cs) -> decode_der cs) certs
+let decode_pem_multiple fn acc str =
+  match Pem.parse str with
+  | Error _ as err -> err
+  | Ok data ->
+    let certs =
+      List.filter (fun (t, _) -> String.equal "CERTIFICATE" t) data
+    in
+    let fn acc (_, cert) = fn acc (decode_der cert) in
+    Ok (List.fold_left fn acc certs)
 
-let decode_pem cs =
-  let* certs = decode_pem_multiple cs in
-  Pem.exactly_one ~what:"certificate" certs
+let decode_pem str =
+  decode_pem_multiple (fun _ v -> v) (Error (`Msg "No certificate")) str
+  |> Result.join
 
 let encode_pem v =
   Pem.unparse ~tag:"CERTIFICATE" (encode_der v)

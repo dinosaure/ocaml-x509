@@ -500,9 +500,9 @@ module Certificate : sig
       the [certificate]. *)
   val encode_der  : t -> string
 
-  (** [decode_pem_multiple pem] is [t list], where all certificates of the [pem]
-       are extracted *)
-  val decode_pem_multiple : string -> (t list, [> `Msg of string ]) result
+  (** [decode_pem_multiple fn acc pem] extracts all certificates from [pem] and let
+      the user to fold on them via [fn] and [acc]. *)
+  val decode_pem_multiple : ('a -> (t, [> `Msg of string ]) result -> 'a) -> 'a -> string -> ('a, [> `Msg of string ]) result
 
   (** [decode_pem pem] is [t], where the single certificate of the
       [pem] is extracted *)
